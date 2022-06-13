@@ -1,6 +1,7 @@
 const axios = require('axios');
 const oauth = require('axios-oauth-client');
 const tokenInterceptor = require('axios-token-interceptor');
+const logger = require('./logger')
 
 const { OAUTH_TOKEN_URL: url, CLIENT_ID: client_id, CLIENT_SECRET: client_secret, API_USERNAME: username, API_PASSWORD: password, AIR_KEY: airKey  } = process.env;
 const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'password', client_id, client_secret, username, password });
@@ -20,15 +21,15 @@ let lastError;
 
 client.interceptors.response.use(
   (response) => {
-    console.log(` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}`);
+    logger.logInfo(` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}`);
     return response;
   },
   (error) => {
     const { message, response } = (lastError = error);
     if (response) {
-      console.error(` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}\n   ${message}`);
+      logger.logError(` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}\n   ${message}`);
     } else {
-      console.error(` ↳ ${message}`);
+      logger.logError(` ↳ ${message}`);
     }
     return error.response;
   }

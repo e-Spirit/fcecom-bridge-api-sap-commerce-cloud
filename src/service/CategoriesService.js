@@ -1,4 +1,5 @@
 const httpClient = require('../utils/http-client');
+const logger = require('../utils/logger')
 
 const { CATALOG_ID, CATALOG_VERSION } = process.env;
 // Map to cache category IDs in order to resolve their URLs later
@@ -71,17 +72,19 @@ const buildCache = (categories) =>
  * This method fetches all categories provided via the categoryIds comma seperated string.
  * @see SwaggerUI {@link http://localhost:3000/api/#/categories/get_categories}
  *
- * @param {string} categoryIds a comma seperated string to represent the categoryIds (e.G. id1,id2)
+ * @param {string[]} categoryIds a comma seperated string to represent the categoryIds (e.G. id1,id2)
  * @param {string} lang the language used for the request
  */
 const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
-  const categories = await Promise.all(
-    categoryIds.map((categoryId) => {
-      return httpClient.get(httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`).then(({ data }) => data);
+  let categories = await Promise.all(
+    categoryIds.map(async (categoryId) => {
+      const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`);
+      return data
     })
-  ).then((categories) => categories.filter((category) => !category.errors).map(category => {
+  )
+  categories = categories.filter((category) => !category.errors).map(category => {
     return { id: category.id, label: category.name};
-  }));
+  });
   const responseStatus = 200;
   return { categories, responseStatus };
 }
@@ -99,7 +102,7 @@ const getCategoryUrl = async (categoryId, lang) => {
     return { url: idCache.get(categoryId) } ;
   }
   else {
-    console.error('Invalid categoryId passed', categoryId);
+    logger.logError('Invalid categoryId passed', categoryId);
     return null;
   }
 };

@@ -25,7 +25,7 @@ const createContentPageResponseBody = (page) => {
 const createContentPageRequestBody = (requestBody, lang, uuid) => {
   return {
     "uuid": uuid,
-    "uid": requestBody.label,
+    "uid": requestBody.pageUid,
     "itemtype": "ContentPage",
     "catalogVersion": `${CONTENT_CATALOG_ID}/${CONTENT_CATALOG_VERSION}`,
     "masterTemplate": requestBody.template,
@@ -49,14 +49,13 @@ const createContentPageRequestBody = (requestBody, lang, uuid) => {
  * @return {Promise<AxiosResponse<any>>} The Page found in SAP Commerce
  */
 const fetchContentPageById = async (pageId, lang) => {
-  const data = await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${pageId}?lang=${lang}&pageSize=500&currentPage=0`);
-  return data;
+  return await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${pageId}?lang=${lang}&pageSize=500&currentPage=0`);
 }
 
 /**
  * Fetches the Content Pages from SAP Commerce with option to retrieve them by keyword search or by Page IDs.
  * Also includes Pagination
- * @param {string} contentIds the Ids of the requested Pages, as a comma seperated string
+ * @param {string[]} contentIds the Ids of the requested Pages, as a comma seperated string
  * @param {number} page the page that is to be requested (relevant for the pagination) (default: 1)
  * @param {string} keyword the keyword used to filter the items and refine the search
  * @param {string} lang the Language to be used for the call
@@ -67,13 +66,12 @@ const fetchContentPages = async ({contentIds, page = 1, q: keyword, lang}) => {
 
   if (contentIds) {
     pages = await Promise.all(
-      contentIds.map((pageId) => {
-        return fetchContentPageById(pageId, lang).then(({ data }) => data );
+      contentIds.map(async (pageId) => {
+        const { data } = await fetchContentPageById(pageId, lang);
+        return data;
       })
-    ).then((pages) => {
-      pages = pages.map(createContentPageResponseBody)
-      return pages.filter((page) => { return !!page.id })
-    });
+    )
+    pages = pages.map(createContentPageResponseBody).filter((pageItem) => { return !!pageItem.id })
     total = pages.length;
   } else {
     let pageSize = 20;
@@ -93,7 +91,7 @@ const fetchContentPages = async ({contentIds, page = 1, q: keyword, lang}) => {
  * Fetches a Content Page based on its Id and returns its URL
  * @param {string} contentId the Id of the Content Page whose URL is requested
  * @param {string} lang the language used for the API Call
- * @return {{url: string}} The URL of the given product, null if given ID is invalid. 
+ * @return {{url: string}} The URL of the given product, null if given ID is invalid.
  */
 const getContentUrl = async (contentId, lang) => {
   const { contentPages } = await contentPagesContentIdsGet([contentId], lang);
@@ -124,7 +122,7 @@ const getContentIdByUrl = async (url, lang= 'en') => {
  * @param {string} query Query string to search pages for.
  * @param {string} [lang] Language of the request.
  * @param {number} [page=1] Number of the page to retrieve.
- * @return An array containing all content pages. 
+ * @return An array containing all content pages.
  */
  const contentPagesGet = async (query, lang, page) => {
   const { pages: contentPages, hasNext, total } = await fetchContentPages({ page, q: query, lang })
@@ -143,7 +141,7 @@ const getContentIdByUrl = async (url, lang= 'en') => {
  */
 const contentPagesContentIdsGet = async (contentIds, lang) => {
   const { pages } = await fetchContentPages({ contentIds, lang });
-  
+
   return {
     contentPages: pages,
     total: pages.length,
@@ -159,15 +157,12 @@ const contentPagesContentIdsGet = async (contentIds, lang) => {
  * @param {string} [lang] The language of the request.
  * @return {*} The response data received from the SAP API.
  */
- const contentPagesPost = async (payload, lang) => {
-
+const contentPagesPost = async (payload, lang) => {
   const cmsItemBody = createContentPageRequestBody(payload, lang);
 
   const { data } = await httpClient.post(httpClient.constants.FULL_CMS_PATH + `/cmsitems`, cmsItemBody);
 
-  const responseBody = data.uuid ? {id: data.uuid}: data;
-
-  return responseBody;
+  return data.uuid ? {id: data.uuid} : data;
 };
 
 /**
@@ -178,10 +173,9 @@ const contentPagesContentIdsGet = async (contentIds, lang) => {
  * @param {object} payload Payload created using `createPagePayload` containing the new values.
  */
 const contentPagesContentIdPut = async (payload, lang, contentId) => {
-
   const cmsItemBody = createContentPageRequestBody(payload, lang, contentId);
 
-  const { data } = await httpClient.put(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId, cmsItemBody)
+  const { data } = await httpClient.put(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId, cmsItemBody);
 
   const responseBody = data.uuid ? {id: data.uuid}: data;
 

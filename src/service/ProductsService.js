@@ -14,11 +14,13 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
 
   if (productIds) {
     products = await Promise.all(
-      productIds.map((productId) => {
-        return httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`).then(({ data }) => data);
+      productIds.map(async (productId) => {
+        const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`);
+        return data
       })
-    ).then((products) => products.filter((product) => !product.errors));
-    total = products.length;
+    );
+    products = products.filter((product) => !product.errors);
+    total = products?.length;
   } else {
     const query = `${keyword || ''}:relevance${categoryId ? `:category:${categoryId}` : ''}`;
     const { data, status } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/search?${new URLSearchParams({ query, fields: `products(${fields})`, currentPage: page - 1 })}`);

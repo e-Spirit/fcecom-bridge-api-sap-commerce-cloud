@@ -1,13 +1,13 @@
 {
-  "name": "fs-ecom-bridge",
-  "description": "FirstSpirit Connect for E-Commerce - Bridge API",
-  "version": "1.1.0",
+  "name": "fcecom-bridge-api-sap-commerce-cloud",
+  "description": "FirstSpirit Connect for E-Commerce - SAP Commerce Cloud Bridge",
+  "version": "1.1.1",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://git.e-spirit.de/scm/fcecom/fcecom-bridge-api.git"
+    "url": "https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud.git"
   },
-  "author": "e-Spirit AG",
+  "author": "e-Spirit GmbH",
   "license": "Apache-2.0",
   "scripts": {
     "start": "node server.js",
@@ -20,7 +20,7 @@
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
     "dotenv": "^8.2.0",
-    "fcecom-bridge-commons": "1.0.1"
+    "fcecom-bridge-commons": "1.0.2"
   },
   "devDependencies": {
     "jest": "^27.5.1",
