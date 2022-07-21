@@ -9,33 +9,41 @@ const { MEDIA_CDN_URL } = process.env;
  * @return The fetched products.
  */
 const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) => {
-  const fields = 'code,name,url,images(format,url)';
-  let { products = [], total = 0, hasNext = false, responseStatus = 200 } = {};
+    const fields = 'code,name,url,images(format,url)';
+    let { products = [], total = 0, hasNext = false, responseStatus = 200 } = {};
 
-  if (productIds) {
-    products = await Promise.all(
-      productIds.map(async (productId) => {
-        const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`);
-        return data
-      })
-    );
-    products = products.filter((product) => !product.errors);
-    total = products?.length;
-  } else {
-    const query = `${keyword || ''}:relevance${categoryId ? `:category:${categoryId}` : ''}`;
-    const { data, status } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/search?${new URLSearchParams({ query, fields: `products(${fields})`, currentPage: page - 1 })}`);
-    products = data.products || [];
-    responseStatus = status
-    total = data.pagination?.totalResults || 0;
-    hasNext = page < data.pagination?.totalPages || false;
-  }
+    if (productIds) {
+        products = await Promise.all(
+            productIds.map(async (productId) => {
+                const { data } = await httpClient.get(
+                    httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`
+                );
+                return data;
+            })
+        );
+        products = products.filter((product) => !product.errors);
+        total = products?.length;
+    } else {
+        const query = `${keyword || ''}:relevance${categoryId ? `:category:${categoryId}` : ''}`;
+        const { data, status } = await httpClient.get(
+            httpClient.constants.FULL_OCC_PATH +
+                `/products/search?${new URLSearchParams({ query, fields: `products(${fields})`, currentPage: page - 1 })}`
+        );
+        products = data.products || [];
+        responseStatus = status;
+        total = data.pagination?.totalResults || 0;
+        hasNext = page < data.pagination?.totalPages || false;
+    }
 
-  products = products.map(({ code: id, name: label, images = [], url }) => {
-    const { thumbnail, product: image } = images.reduce((map, { format, url }) => Object.assign(map, { [format]: MEDIA_CDN_URL + url }), {});
-    return { id, label, extract: url, thumbnail, image };
-  });
+    products = products.map(({ code: id, name: label, images = [], url }) => {
+        const { thumbnail, product: image } = images.reduce(
+            (map, { format, url }) => Object.assign(map, { [format]: MEDIA_CDN_URL + url }),
+            {}
+        );
+        return { id, label, extract: url, thumbnail, image };
+    });
 
-  return { products, total, hasNext, responseStatus };
+    return { products, total, hasNext, responseStatus };
 };
 
 /**
@@ -45,10 +53,11 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
  * @return {string} The URL of the given product.
  */
 const getProductUrl = async (productId) => {
-  const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields: 'url' })}`);
-  return { url: data.url } ;
+    const { data } = await httpClient.get(
+        httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields: 'url' })}`
+    );
+    return { url: data.url };
 };
-
 
 /**
  * This method fetches all products and transforms them into the internal model.
@@ -60,14 +69,9 @@ const getProductUrl = async (productId) => {
  * @return The fetched products.
  */
 const productsGet = async (categoryId, keyword, lang, page = 1) => {
-  const {
-    products,
-    total,
-    hasNext,
-    responseStatus
-  } = await fetchProducts({ page, categoryId, q: keyword });
+    const { products, total, hasNext, responseStatus } = await fetchProducts({ page, categoryId, q: keyword });
 
-  return { products, total, hasNext };
+    return { products, total, hasNext };
 };
 
 /**
@@ -78,14 +82,13 @@ const productsGet = async (categoryId, keyword, lang, page = 1) => {
  * @return Promise<{ hasNext: boolean, total: number, products: any[]}> The category data.
  */
 const productsProductIdsGet = async (productIds) => {
-  const { products } = await fetchProducts({ productIds });
+    const { products } = await fetchProducts({ productIds });
 
-  return { products, total: products.length, hasNext: false };
-
+    return { products, total: products.length, hasNext: false };
 };
 
 module.exports = {
-  productsProductIdsGet,
-  productsGet,
-  getProductUrl
+    productsProductIdsGet,
+    productsGet,
+    getProductUrl
 };

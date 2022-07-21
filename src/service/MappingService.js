@@ -11,7 +11,12 @@ const Products = require('./ProductsService');
 const lookupUrlGet = async function (url) {
     const [, type, id] = (url || '').match(/\/([^\/]+)\/([^\/]+)\/?$/) || [];
 
-    const ecomId = type === 'p' ? { type: 'product', id } : type === 'categories' ? { type: 'category', id } : await ContentPages.getContentIdByUrl(url);
+    const ecomId =
+        type === 'p'
+            ? { type: 'product', id }
+            : type === 'categories'
+            ? { type: 'category', id }
+            : await ContentPages.getContentIdByUrl(url);
     return ecomId;
 };
 
@@ -24,7 +29,11 @@ const lookupUrlGet = async function (url) {
  * @returns The Storefront URL belonging to the given element.
  */
 const storefrontUrlGet = async function (type, id, lang) {
-    const { url } = await (type === 'category' ? Categories.getCategoryUrl(id, lang) : type === 'product' ? Products.getProductUrl(id) : ContentPages.getContentUrl(id));
+    const { url } = await (type === 'category'
+        ? Categories.getCategoryUrl(id, lang)
+        : type === 'product'
+        ? Products.getProductUrl(id)
+        : ContentPages.getContentUrl(id));
 
     return { url };
 };
