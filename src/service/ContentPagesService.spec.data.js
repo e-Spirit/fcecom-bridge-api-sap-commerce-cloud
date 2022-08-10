@@ -93,7 +93,7 @@ module.exports = {
         ]
     },
     requestBody: {
-        template: 'LandingPage2Template',
+        template: 'contentpage',
         visible: true,
         pageUid: 'testpage',
         label: 'TestPage',

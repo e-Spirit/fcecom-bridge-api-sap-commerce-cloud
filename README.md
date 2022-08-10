@@ -53,6 +53,10 @@ The configuration is done by copying the `.env.template` file in the root direct
 | CLIENT_SECRET           | The client secret used to identify to SAP Commerce using OAuth2.                                                   |
 | AIR_KEY                 | The AIR (Application Interface Register) Key, as obtained from SAP (optional).                                     |
 
+#### Configure Template Mapping
+To map FirstSpirit Templates to SAP Commerce Cloud Templates this Bridge uses a simple .json file, which can be found at 'src/resources/FStoSAPTemplateMapping.json'.
+To add to this map simply use the FirstSpirit template Ids as keys and the SAP Commerce Cloud template Ids as values.
+
 ### Run bridge
 Before starting the bridge for the first time, you have to install its dependencies:
 ```

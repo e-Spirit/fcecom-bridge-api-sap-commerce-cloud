@@ -2,7 +2,12 @@ const httpClient = require('../utils/http-client');
 const service = require('./ContentPagesService');
 const data = require('./ContentPagesService.spec.data');
 
+const testTemplateMap = {
+    contentpage: "resultTemplate"
+}
+
 jest.mock('../../src/utils/http-client');
+jest.mock('../resources/FStoSAPTemplateMapping.json', () => testTemplateMap)
 
 describe('ContentPagesService', () => {
     httpClient.constants.FULL_CMS_PATH = 'FULL_PATH';
@@ -71,7 +76,7 @@ describe('ContentPagesService', () => {
 
             expect(httpClient.post.mock.calls[0][0]).toEqual(`${httpClient.constants.FULL_CMS_PATH}/cmsitems`);
             expect(httpClient.post.mock.calls[0][1].uid).toEqual(testRequestBody.pageUid);
-            expect(httpClient.post.mock.calls[0][1].masterTemplate).toEqual(testRequestBody.template);
+            expect(httpClient.post.mock.calls[0][1].masterTemplate).toEqual(testTemplateMap[testRequestBody.template]);
             expect(httpClient.post.mock.calls[0][1].approvalStatus).toEqual('APPROVED');
             expect(httpClient.post.mock.calls[0][1].pageStatus).toEqual('ACTIVE');
             expect(httpClient.post.mock.calls[0][1].label).toEqual(testRequestBody.label);
@@ -92,7 +97,7 @@ describe('ContentPagesService', () => {
             expect(httpClient.put.mock.calls[0][0]).toEqual(`${httpClient.constants.FULL_CMS_PATH}/cmsitems/${testContentId}`);
             expect(httpClient.put.mock.calls[0][1].uuid).toEqual(testContentId);
             expect(httpClient.put.mock.calls[0][1].uid).toEqual(testRequestBody.pageUid);
-            expect(httpClient.put.mock.calls[0][1].masterTemplate).toEqual(testRequestBody.template);
+            expect(httpClient.put.mock.calls[0][1].masterTemplate).toEqual(testTemplateMap[testRequestBody.template]);
             expect(httpClient.put.mock.calls[0][1].approvalStatus).toEqual('APPROVED');
             expect(httpClient.put.mock.calls[0][1].pageStatus).toEqual('ACTIVE');
             expect(httpClient.put.mock.calls[0][1].label).toEqual(testRequestBody.label);

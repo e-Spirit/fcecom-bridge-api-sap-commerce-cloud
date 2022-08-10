@@ -1,4 +1,5 @@
 const httpClient = require('../utils/http-client');
+const templateMap = require('../resources/FStoSAPTemplateMapping.json')
 
 const { CONTENT_CATALOG_ID, CONTENT_CATALOG_VERSION } = process.env;
 
@@ -28,7 +29,7 @@ const createContentPageRequestBody = (requestBody, lang, uuid) => {
         uid: requestBody.pageUid,
         itemtype: 'ContentPage',
         catalogVersion: `${CONTENT_CATALOG_ID}/${CONTENT_CATALOG_VERSION}`,
-        masterTemplate: requestBody.template,
+        masterTemplate: templateMap[requestBody.template],
         // See https://help.sap.com/doc/02d5152884b34821a06408495ba0b771/1905/en-US/de/hybris/platform/cms2/enums/package-summary.html for ENUM values
         approvalStatus: requestBody.visible ? 'APPROVED' : 'UNAPPROVED',
         pageStatus: requestBody.visible ? 'ACTIVE' : 'DELETED',
@@ -199,10 +200,10 @@ const contentPagesContentIdPut = async (payload, lang, contentId) => {
 /**
  * This method deletes the page with the given ID.
  *
- * @param {string} lang The language of the request.
  * @param {number} contentId ID of the page to delete.
+ * @param {string} lang The language of the request
  */
-const contentPagesContentIdDelete = async (lang, contentId) => {
+const contentPagesContentIdDelete = async (contentId, lang ) => {
     await httpClient.delete(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId);
 };
 
