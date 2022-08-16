@@ -60,7 +60,7 @@ To add to this map simply use the FirstSpirit template Ids as keys and the SAP C
 ### Run bridge
 Before starting the bridge for the first time, you have to install its dependencies:
 ```
-npm ci
+npm install
 ```
 
 To start the bridge run:
