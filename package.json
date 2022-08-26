@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud.git"
   },
-  "author": "e-Spirit GmbH",
+  "author": "Crownpeak Technology GmbH",
   "license": "Apache-2.0",
   "scripts": {
     "start": "node server.js",
@@ -20,7 +20,7 @@
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
     "dotenv": "^8.2.0",
-    "fcecom-bridge-commons": "^1.1.1"
+    "fcecom-bridge-commons": "^1.1.2"
   },
   "devDependencies": {
     "jest": "^27.5.1",
