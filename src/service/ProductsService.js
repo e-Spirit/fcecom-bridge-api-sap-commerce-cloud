@@ -15,10 +15,15 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
     if (productIds) {
         products = await Promise.all(
             productIds.map(async (productId) => {
-                const { data } = await httpClient.get(
-                    httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`
-                );
-                return data;
+                try {
+                    const { data } = await httpClient.get(
+                      httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`
+                    );
+                    return data;
+                }
+                catch (error) {
+                    return { errors: true }
+                }
             })
         );
         products = products.filter((product) => !product.errors);

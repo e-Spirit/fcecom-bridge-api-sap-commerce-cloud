@@ -32,6 +32,8 @@ client.interceptors.response.use(
     },
     (error) => {
         const { message, response } = (lastError = error);
+        const data = response?.data || message;
+        const status = response?.status || 500;
         if (response) {
             logger.logError(
                 ` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${
@@ -41,7 +43,7 @@ client.interceptors.response.use(
         } else {
             logger.logError(` ↳ ${message}`);
         }
-        return error.response;
+        return Promise.reject({ error: true, data, status });
     }
 );
 

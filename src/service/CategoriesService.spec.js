@@ -20,7 +20,7 @@ describe('CategoriesService', () => {
         });
         it('returns null if the given category is invalid', async () => {
             console.error = jest.fn();
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet });
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.getCategoryUrl('-999', testLang);
 
@@ -77,7 +77,7 @@ describe('CategoriesService', () => {
             const testCategory1 = data.categoriesGet.categories[0];
             const testCategory2 = data.categoriesGet.categories[1];
             const testCategoryIds = [testCategory1.id, testCategory2.id];
-            httpClient.get.mockResolvedValueOnce({ data: testCategory1 }).mockResolvedValue({ data: testCategory2 });
+            httpClient.get.mockResolvedValueOnce({ data: testCategory1, status: 200 }).mockResolvedValue({ data: testCategory2, status: 200 });
 
             const result = await service.fetchCategoriesByIds({ categoryIds: testCategoryIds, lang: 'EN' });
 
@@ -117,39 +117,44 @@ describe('CategoriesService', () => {
 
     describe('categoriesGet', () => {
         it('returns the categories as list (no parent ID, no pagination)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet.categories });
+            const expectedCategoryLength = 8; /* number of all categories in response no matter the depth */
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet();
 
             expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
-            expect(result.categories.length).toEqual(data.categoriesGet.categories.length);
+            expect(result.categories.length).toEqual(expectedCategoryLength);
             for (let i = 0; i < data.categoriesGet.categories.length; i++) {
                 // Check if every category from the test data set is present in the result (ignore ordering)
                 expect(result.categories.findIndex((category) => category.id === data.categoriesGet.categories[i].id) !== -1).toEqual(true);
             }
             expect(result.hasNext).toEqual(false);
-            expect(result.total).toEqual(data.categoriesGet.categories.length);
+            expect(result.total).toEqual(expectedCategoryLength);
         });
         it('returns the categories as list (with parent ID)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet.categories });
+            const expectedCategoryLength = 5; /* number of all subcategories of the first category in response */
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(data.categoriesGet.categories[0].id);
 
             expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
-            expect(result.categories.length).toEqual(3);
-            expect(result.categories[0].id).toEqual('18');
-            expect(result.categories[1].id).toEqual('20');
-            expect(result.categories[2].id).toEqual('23');
+            expect(result.categories.length).toEqual(expectedCategoryLength);
+            expect(result.categories[0].id).toEqual('19');
+            expect(result.categories[1].id).toEqual('21');
+            expect(result.categories[2].id).toEqual('212');
+            expect(result.categories[3].id).toEqual('2121');
+            expect(result.categories[4].id).toEqual('22');
         });
         it('returns the categories as list (with pagination)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet.categories });
+            const expectedCategoryTotal = 8;
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(0, 'EN', 123);
 
             expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
             expect(result.categories.length).toEqual(0);
             expect(result.hasNext).toEqual(false);
-            expect(result.total).toEqual(data.categoriesGet.categories.length);
+            expect(result.total).toEqual(expectedCategoryTotal);
         });
     });
     describe('categoryTreeGet', () => {
@@ -197,7 +202,7 @@ describe('CategoriesService', () => {
         it('returns the categories pages with the given IDs', async () => {
             const categoryIds = [data.categoriesGet.categories[0].id, -999];
             const testCategory1 = data.categoriesGet.categories[0];
-            httpClient.get.mockResolvedValueOnce({ data: testCategory1 }).mockResolvedValue({ data: { errors: true } });
+            httpClient.get.mockResolvedValueOnce({ data: testCategory1, status: 200 }).mockResolvedValue({ data: { errors: true } });
 
             const result = await service.categoriesCategoryIdsGet(categoryIds);
 

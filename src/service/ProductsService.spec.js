@@ -47,7 +47,7 @@ describe('ProductsService', () => {
     describe('getProductUrl', () => {
         it('returns the correct URL', async () => {
             const productId = data.getProductUrl.id;
-            httpClient.get.mockResolvedValue({ data: data.getProductUrl });
+            httpClient.get.mockResolvedValue({ data: data.getProductUrl, status: 200 });
 
             const result = await service.getProductUrl(productId);
 

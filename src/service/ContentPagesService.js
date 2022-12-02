@@ -68,8 +68,13 @@ const fetchContentPages = async ({ contentIds, page = 1, q: keyword, lang }) => 
     if (contentIds) {
         pages = await Promise.all(
             contentIds.map(async (pageId) => {
-                const { data } = await fetchContentPageById(pageId, lang);
-                return data;
+                try {
+                    const { data } = await fetchContentPageById(pageId, lang);
+                    return data;
+                }
+                catch (error) {
+                    return { errors: true }
+                }
             })
         );
         pages = pages.map(createContentPageResponseBody).filter((pageItem) => {

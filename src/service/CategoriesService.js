@@ -58,10 +58,8 @@ const buildCache = (categories) =>
 const fetchCategories = async (lang, parentId, getTree = false) => {
     let {
         data: { categories = [] } = {},
-        data,
         status
     } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`);
-    if (status !== 200) return { status, data };
     categories = categories.filter(({ name }) => !!name);
     buildCache(categories);
     return {
@@ -81,11 +79,16 @@ const fetchCategories = async (lang, parentId, getTree = false) => {
 const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
     let categories = await Promise.all(
         categoryIds.map(async (categoryId) => {
-            const { data } = await httpClient.get(
-                httpClient.constants.FULL_OCC_PATH +
-                    `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
-            );
-            return data;
+            try {
+                const { data } = await httpClient.get(
+                  httpClient.constants.FULL_OCC_PATH +
+                  `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
+                );
+                return data;
+            }
+            catch (error) {
+                return { errors: true }
+            }
         })
     );
     categories = categories
