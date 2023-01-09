@@ -30,10 +30,11 @@ Lean more about their API [here](https://help.sap.com/docs/SAP_COMMERCE/4c33bf18
 The configuration is done by copying the `.env.template` file in the root directory to a `.env` file and editing it.
 
 | Param                   | Description                                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------|
 | PORT                    | The port on which the bridge is started.                                                                           |
 | BRIDGE_AUTH_USERNAME    | The username to access the bridge's API.                                                                           |
 | BRIDGE_AUTH_PASSWORD    | The password to access the bridge's API.                                                                           |
+| DEFAULT_LANG            | The default bridge language used to retrieve fallback languages in the PUT/POST bodies.             |
 | CONN_MODE               | Whether to use HTTP or HTTPS for the bridge's API.                                                                 |
 | SSL_CERT                | The path to the certificate file to use when using HTTPS.                                                          |
 | SSL_KEY                 | The path to the private key file to use when using HTTPS.                                                          |
