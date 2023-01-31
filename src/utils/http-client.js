@@ -2,6 +2,7 @@ const axios = require('axios');
 const oauth = require('axios-oauth-client');
 const tokenInterceptor = require('axios-token-interceptor');
 const logger = require('./logger');
+const errorMapper = require('./error-mapper');
 
 const {
     OAUTH_TOKEN_URL: url,
@@ -38,11 +39,13 @@ client.interceptors.response.use(
             logger.logError(
                 ` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${
                     response.statusText
-                }\n   ${message}`
+                }\n   ${message}\n   ${JSON.stringify(data, null, 2)}`
             );
+            errorMapper.mapErrors(response);
         } else {
             logger.logError(` ↳ ${message}`);
         }
+
         return Promise.reject({ error: true, data, status });
     }
 );

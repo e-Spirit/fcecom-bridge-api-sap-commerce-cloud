@@ -1,0 +1,6 @@
+{
+    "field.already.exist": "mustBeUnique",
+    "default.page.label.already.exist": "mustBeUnique",
+    "field.required": "required",
+    "field.invalid.uuid": "wrongTemplateMapping"
+}

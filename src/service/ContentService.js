@@ -12,7 +12,7 @@ const { CONTENT_CATALOG_ID, CONTENT_CATALOG_VERSION, DEFAULT_LANG } = process.en
 const createContentPageResponseBody = (page, lang = DEFAULT_LANG) => {
   return {
     id: page.uuid,
-    label: page.title[lang],
+    label: page.title[lang.toLowerCase()],
     extract: page.label
   };
 };
@@ -35,8 +35,8 @@ const createContentPageRequestBody = (requestBody, uuid) => {
     pageStatus: requestBody.released ? 'ACTIVE' : 'DELETED',
     defaultPage: true,
     homepage: false,
-    label: requestBody.path[DEFAULT_LANG],
-    name: requestBody.label[DEFAULT_LANG],
+    label: requestBody.path[DEFAULT_LANG.toLowerCase()],
+    name: requestBody.label[DEFAULT_LANG.toLowerCase()],
     title: requestBody.label
   }
 };
@@ -202,7 +202,6 @@ const contentContentIdPut = async (payload,  contentId) => {
  * This method deletes the page with the given ID.
  *
  * @param {number} contentId ID of the page to delete.
- * @param {string} lang The language of the request
  */
 const contentContentIdDelete = async (contentId) => {
   await httpClient.delete(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId);
