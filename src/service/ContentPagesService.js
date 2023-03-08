@@ -1,5 +1,8 @@
 const httpClient = require('../utils/http-client');
-const templateMap = require('../resources/FStoSAPTemplateMapping.json')
+const templateMap = require('../resources/FStoSAPTemplateMapping.json');
+const logger = require('../utils/logger');
+
+const LOGGING_NAME = 'ContentPagesService';
 
 const { CONTENT_CATALOG_ID, CONTENT_CATALOG_VERSION } = process.env;
 
@@ -50,7 +53,11 @@ const createContentPageRequestBody = (requestBody, lang, uuid) => {
  * @return {Promise<AxiosResponse<any>>} The Page found in SAP Commerce
  */
 const fetchContentPageById = async (pageId, lang) => {
-    return await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${pageId}?lang=${lang}&pageSize=500&currentPage=0`);
+    const params = `${pageId}?lang=${lang}&pageSize=500&currentPage=0`;
+
+    logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems/ with parameters ${params}`);
+
+    return await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${params}`);
 };
 
 /**
@@ -71,9 +78,8 @@ const fetchContentPages = async ({ contentIds, page = 1, q: keyword, lang }) => 
                 try {
                     const { data } = await fetchContentPageById(pageId, lang);
                     return data;
-                }
-                catch (error) {
-                    return { errors: true }
+                } catch (error) {
+                    return { errors: true };
                 }
             })
         );
@@ -92,6 +98,9 @@ const fetchContentPages = async ({ contentIds, page = 1, q: keyword, lang }) => 
             lang
         });
         if (keyword) params.append('mask', keyword);
+
+        logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems with parameters ${params}`);
+
         const { data, status } = await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
         pages = data.response?.map(createContentPageResponseBody);
         responseStatus = status;
@@ -129,6 +138,9 @@ const getContentIdByUrl = async (url, lang = 'en') => {
         lang,
         itemSearchParams: `label:${url}`
     });
+
+    logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems with parameters ${params}`);
+
     const { data } = await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
     const contentPage = data.response[0];
     return {
@@ -180,6 +192,8 @@ const contentPagesContentIdsGet = async (contentIds, lang) => {
 const contentPagesPost = async (payload, lang) => {
     const cmsItemBody = createContentPageRequestBody(payload, lang);
 
+    logger.logDebug(LOGGING_NAME, `Performing POST request to /cmsitems with body ${JSON.stringify(cmsItemBody)}`);
+
     const { data } = await httpClient.post(httpClient.constants.FULL_CMS_PATH + `/cmsitems`, cmsItemBody);
 
     return data.uuid ? { id: data.uuid } : data;
@@ -195,6 +209,11 @@ const contentPagesPost = async (payload, lang) => {
 const contentPagesContentIdPut = async (payload, lang, contentId) => {
     const cmsItemBody = createContentPageRequestBody(payload, lang, contentId);
 
+    logger.logDebug(
+        LOGGING_NAME,
+        `Performing PUT request to /cmsitems/ with parameters ${contentId} and body ${JSON.stringify(cmsItemBody)}`
+    );
+
     const { data } = await httpClient.put(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId, cmsItemBody);
 
     const responseBody = data.uuid ? { id: data.uuid } : data;
@@ -208,7 +227,9 @@ const contentPagesContentIdPut = async (payload, lang, contentId) => {
  * @param {number} contentId ID of the page to delete.
  * @param {string} lang The language of the request
  */
-const contentPagesContentIdDelete = async (contentId, lang ) => {
+const contentPagesContentIdDelete = async (contentId, lang) => {
+    logger.logDebug(LOGGING_NAME, `Performing DELETE request to /cmsitems/ with parameters ${contentId}`);
+
     await httpClient.delete(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId);
 };
 

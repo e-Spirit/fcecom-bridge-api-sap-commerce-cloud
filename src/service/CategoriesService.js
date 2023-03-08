@@ -1,6 +1,8 @@
 const httpClient = require('../utils/http-client');
 const logger = require('../utils/logger');
 
+const LOGGING_NAME = 'CategoriesService';
+
 const { CATALOG_ID, CATALOG_VERSION } = process.env;
 // Map to cache category IDs in order to resolve their URLs later
 const idCache = new Map();
@@ -56,10 +58,11 @@ const buildCache = (categories) =>
  * @return Promise<*> The category tree.
  */
 const fetchCategories = async (lang, parentId, getTree = false) => {
-    let {
-        data: { categories = [] } = {},
-        status
-    } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`);
+    logger.logDebug(LOGGING_NAME, `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`);
+
+    let { data: { categories = [] } = {}, status } = await httpClient.get(
+        httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`
+    );
     categories = categories.filter(({ name }) => !!name);
     buildCache(categories);
     return {
@@ -79,15 +82,19 @@ const fetchCategories = async (lang, parentId, getTree = false) => {
 const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
     let categories = await Promise.all(
         categoryIds.map(async (categoryId) => {
+            logger.logDebug(
+                LOGGING_NAME,
+                `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?lang=${lang}`
+            );
+
             try {
                 const { data } = await httpClient.get(
-                  httpClient.constants.FULL_OCC_PATH +
-                  `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
+                    httpClient.constants.FULL_OCC_PATH +
+                        `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );
                 return data;
-            }
-            catch (error) {
-                return { errors: true }
+            } catch (error) {
+                return { errors: true };
             }
         })
     );
@@ -112,7 +119,7 @@ const getCategoryUrl = async (categoryId, lang) => {
     if (idCache.has(categoryId)) {
         return { url: idCache.get(categoryId) };
     } else {
-        logger.logError('Invalid categoryId passed', categoryId);
+        logger.logError(LOGGING_NAME, 'Invalid categoryId passed', categoryId);
         return null;
     }
 };

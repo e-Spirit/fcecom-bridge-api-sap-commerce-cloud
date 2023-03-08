@@ -4,6 +4,8 @@ const tokenInterceptor = require('axios-token-interceptor');
 const logger = require('./logger');
 const errorMapper = require('./error-mapper');
 
+const LOGGING_NAME = 'http-client';
+
 const {
     OAUTH_TOKEN_URL: url,
     CLIENT_ID: client_id,
@@ -28,7 +30,10 @@ let lastError;
 
 client.interceptors.response.use(
     (response) => {
-        logger.logInfo(` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}`);
+        logger.logInfo(
+            LOGGING_NAME,
+            `↳ Received response ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${response.statusText}`
+        );
         return response;
     },
     (error) => {
@@ -37,13 +42,14 @@ client.interceptors.response.use(
         const status = response?.status || 500;
         if (response) {
             logger.logError(
-                ` ↳ ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${
+                LOGGING_NAME,
+                `↳ Received response ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${
                     response.statusText
-                }\n   ${message}\n   ${JSON.stringify(data, null, 2)}`
+                } ${message} ${JSON.stringify(data, null, 2)}`
             );
             errorMapper.mapErrors(response);
         } else {
-            logger.logError(` ↳ ${message}`);
+            logger.logError(LOGGING_NAME, `↳ ${message}`);
         }
 
         return Promise.reject({ error: true, data, status });

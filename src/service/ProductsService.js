@@ -1,4 +1,7 @@
 const httpClient = require('../utils/http-client');
+const logger = require('../utils/logger');
+
+const LOGGING_NAME = 'ProductsService';
 
 const { MEDIA_CDN_URL } = process.env;
 
@@ -15,14 +18,13 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
     if (productIds) {
         products = await Promise.all(
             productIds.map(async (productId) => {
+                const params = `${productId}?${new URLSearchParams({ fields })}`;
+                logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
                 try {
-                    const { data } = await httpClient.get(
-                      httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields })}`
-                    );
+                    const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
                     return data;
-                }
-                catch (error) {
-                    return { errors: true }
+                } catch (error) {
+                    return { errors: true };
                 }
             })
         );
@@ -30,10 +32,11 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         total = products?.length;
     } else {
         const query = `${keyword || ''}:relevance${categoryId ? `:category:${categoryId}` : ''}`;
-        const { data, status } = await httpClient.get(
-            httpClient.constants.FULL_OCC_PATH +
-                `/products/search?${new URLSearchParams({ query, fields: `products(${fields})`, currentPage: page - 1 })}`
-        );
+        const params = `${new URLSearchParams({ query, fields: `products(${fields})`, currentPage: page - 1 })}`;
+
+        logger.logDebug(LOGGING_NAME, `Performing GET request to /products/search with parameters ${params}`);
+
+        const { data, status } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/search?${params}`);
         products = data.products || [];
         responseStatus = status;
         total = data.pagination?.totalResults || 0;
@@ -58,9 +61,11 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
  * @return {string} The URL of the given product.
  */
 const getProductUrl = async (productId) => {
-    const { data } = await httpClient.get(
-        httpClient.constants.FULL_OCC_PATH + `/products/${productId}?${new URLSearchParams({ fields: 'url' })}`
-    );
+    const params = `${productId}?${new URLSearchParams({ fields: 'url' })}`;
+
+    logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
+
+    const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
     return { url: data.url };
 };
 
