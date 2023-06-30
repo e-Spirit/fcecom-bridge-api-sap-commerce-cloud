@@ -19,7 +19,7 @@ Lean more about their API [here](https://help.sap.com/docs/SAP_COMMERCE/4c33bf18
 
 
 ## Prerequisites
-- Server running node 14 or later
+- Server running node 18 or later
 - SAP Commerce Cloud instance
 - Access to the [SAP OCC API](https://help.sap.com/docs/SAP_COMMERCE/4c33bf189ab9409e84e589295c36d96e/620a19f591cf4846a0160c74754c43b2.html?version=1905&locale=en-US)
 - Access to the [SAP CMS Item API](https://help.sap.com/docs/SAP_COMMERCE/9d346683b0084da2938be8a285c0c27a/95e7d463fe704627a153685ff6a581e3.html?version=1811&locale=en-US)
