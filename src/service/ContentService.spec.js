@@ -1,6 +1,6 @@
 const httpClient = require('../utils/http-client');
 const service = require('./ContentService');
-const data = require('./ContentPagesService.spec.data'); /* same as before (the shop responses dont change) */
+const data = require('./ContentService.spec.data'); /* same as before (the shop responses dont change) */
 
 const testTemplateMap = {
   content: "resultTemplate"

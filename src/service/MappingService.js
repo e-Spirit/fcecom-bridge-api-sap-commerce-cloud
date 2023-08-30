@@ -1,4 +1,4 @@
-const ContentPages = require('./ContentPagesService');
+const ContentPages = require('./ContentService');
 const Categories = require('./CategoriesService');
 const Products = require('./ProductsService');
 const logger = require('../utils/logger');

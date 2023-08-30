@@ -3,12 +3,12 @@ const productsData = require('./ProductsService.spec.data');
 const ProductsService = require('./ProductsService');
 const categoriesData = require('./CategoriesService.spec.data');
 const CategoriesService = require('./CategoriesService');
-const contentPagesData = require('./ContentPagesService.spec.data');
-const ContentPagesService = require('./ContentPagesService');
+const contentPagesData = require('./ContentService.spec.data');
+const ContentPagesService = require('./ContentService');
 
 jest.mock('../../src/service/ProductsService');
 jest.mock('../../src/service/CategoriesService');
-jest.mock('../../src/service/ContentPagesService');
+jest.mock('../../src/service/ContentService');
 
 describe('MappingService', () => {
     describe('storefrontUrlGet', () => {
