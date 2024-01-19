@@ -1,0 +1,21 @@
+# This is an example template to illustrate the use of Docker Compose for multi-tenant support.
+version: '3.5'
+
+services:
+  fcecom-bridge-sap-1:
+    image: <IMAGE_NAME>:<VERSION>
+    container_name: fcecom-bridge-sap-1
+    restart: on-failure
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.development
+
+  fcecom-bridge-sap-2:
+    image: <IMAGE_NAME>:<VERSION>
+    container_name: fcecom-bridge-sap-2
+    restart: on-failure
+    ports:
+      - '3010:3000'
+    env_file:
+      - .env.production
