@@ -12,9 +12,12 @@ const {
     CLIENT_SECRET: client_secret,
     API_USERNAME: username,
     API_PASSWORD: password,
-    AIR_KEY: airKey
+    AIR_KEY: airKey,
+    GRANT_TYPE: _grant_type
 } = process.env;
-const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'password', client_id, client_secret, username, password });
+
+const grant_type = _grant_type || 'password';
+const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type, client_id, client_secret, username, password });
 
 const { BASE_URL, BASE_SITE_ID, OCC_PATH, CMS_PATH } = process.env;
 const client = axios.create({ baseURL: BASE_URL });
