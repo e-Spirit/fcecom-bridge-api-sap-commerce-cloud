@@ -116,7 +116,7 @@ describe('CategoriesService', () => {
     });
 
     describe('categoriesGet', () => {
-        it('returns the categories as list (no parent ID, no pagination)', async () => {
+        it('returns the categories as list (no parent ID, no keyword, no pagination)', async () => {
             const expectedCategoryLength = 8; /* number of all categories in response no matter the depth */
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
@@ -145,14 +145,40 @@ describe('CategoriesService', () => {
             expect(result.categories[3].id).toEqual('2121');
             expect(result.categories[4].id).toEqual('22');
         });
-        it('returns the categories as list (with pagination)', async () => {
+        it('returns the categories as list (no keyword with pagination)', async () => {
             const expectedCategoryTotal = 8;
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
-            const result = await service.categoriesGet(0, 'EN', 123);
+            const result = await service.categoriesGet(0, undefined, 'EN', 123);
 
             expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
             expect(result.categories.length).toEqual(0);
+            expect(result.hasNext).toEqual(false);
+            expect(result.total).toEqual(expectedCategoryTotal);
+        });
+        it('returns the categories as list (with keyword and pagination)', async () => {
+            const expectedCategoryTotal = 1;
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+
+            const result = await service.categoriesGet(0, 'Bath', 'EN', 1);
+
+            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(result.categories.length).toEqual(1);
+            expect(result.categories[0].label).toEqual("Bath");
+            expect(result.hasNext).toEqual(false);
+            expect(result.total).toEqual(expectedCategoryTotal);
+        });
+        it('returns the categories as list (with parentId, keyword and pagination)', async () => {
+            const expectedCategoryTotal = 2;
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+
+            const result = await service.categoriesGet(data.categoriesGet.categories[0].id, 'ov', 'EN', 1);
+
+            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+
+            expect(result.categories.length).toEqual(2);
+            expect(result.categories[0].label).toEqual("ovens");
+            expect(result.categories[1].label).toEqual("Stoves");
             expect(result.hasNext).toEqual(false);
             expect(result.total).toEqual(expectedCategoryTotal);
         });

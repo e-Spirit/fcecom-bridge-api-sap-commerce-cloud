@@ -1,3 +1,9 @@
+## [2.5.0](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.4.1...v2.5.0) (2024-06-20)
+
+### Changes
+* Added a search by category name to the category report.
+* Updated version of `fcecom-bridge-commons` dependency.
+
 ## [2.4.1](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.4.0...v2.4.1) (2024-05-17)
 
 ### Changes
