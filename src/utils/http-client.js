@@ -41,6 +41,15 @@ client.interceptors.response.use(
         const data = response?.data || message;
         const status = response?.status || 500;
         if (response) {
+
+            if (response.data?.error === 'invalid_grant') {
+                return Promise.reject({ error: true, data: response?.data?.error_description, status: 401 });
+            }
+            if (response.data?.errors[0]?.type === 'UnknownIdentifierError') {
+                // Treat invalid categories as successes
+                return response;
+            }
+            
             logger.logError(
                 LOGGING_NAME,
                 `↳ Received response ${response.config.method.toUpperCase()} ${response.config.url} - ${response.status} ${

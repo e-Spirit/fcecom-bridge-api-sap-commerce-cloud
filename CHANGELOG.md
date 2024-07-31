@@ -1,3 +1,11 @@
+## [2.5.1](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.5.0...v2.5.1) (2024-07-31)
+
+### Changes
+* Adjust responses in case of an error.
+* Error responses are now JSON instead of plain text.
+* Fixed configured default language not being used as fallback.
+* Updated fcecom-bridge-commons to v2.3.1.
+
 ## [2.5.0](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.4.1...v2.5.0) (2024-06-20)
 
 ### Changes

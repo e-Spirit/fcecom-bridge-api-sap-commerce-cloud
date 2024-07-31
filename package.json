@@ -1,7 +1,7 @@
 {
   "name": "fcecom-bridge-api-sap-commerce-cloud",
   "description": "FirstSpirit Connect for E-Commerce - SAP Commerce Cloud Bridge",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
     "dotenv": "^16.4.5",
-    "fcecom-bridge-commons": "^2.3.0"
+    "fcecom-bridge-commons": "^2.3.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",

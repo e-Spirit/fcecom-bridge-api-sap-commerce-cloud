@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const LOGGING_NAME = 'CategoriesService';
 
-const { CATALOG_ID, CATALOG_VERSION } = process.env;
+const { CATALOG_ID, CATALOG_VERSION, DEFAULT_LANG } = process.env;
 // Map to cache category IDs in order to resolve their URLs later
 const idCache = new Map();
 
@@ -57,7 +57,7 @@ const buildCache = (categories) =>
  * @param {string} parentId a filter attribute to filter the Category tree
  * @return Promise<*> The category tree.
  */
-const fetchCategories = async (lang, parentId, getTree = false) => {
+const fetchCategories = async (lang = DEFAULT_LANG, parentId, getTree = false) => {
     logger.logDebug(LOGGING_NAME, `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`);
 
     let { data: { categories = [] } = {}, status } = await httpClient.get(
@@ -79,7 +79,9 @@ const fetchCategories = async (lang, parentId, getTree = false) => {
  * @param {string[]} categoryIds a comma seperated string to represent the categoryIds (e.G. id1,id2)
  * @param {string} lang the language used for the request
  */
-const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
+const fetchCategoriesByIds = async ({ categoryIds, lang = DEFAULT_LANG }) => {
+    let hasError = false;
+    let lastError;
     let categories = await Promise.all(
         categoryIds.map(async (categoryId) => {
             logger.logDebug(
@@ -88,23 +90,30 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
             );
 
             try {
-                const { data } = await httpClient.get(
+                const { data, status } = await httpClient.get(
                     httpClient.constants.FULL_OCC_PATH +
                         `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );
                 return data;
             } catch (error) {
+                hasError = true;
+                lastError = error;
                 return { errors: true };
             }
         })
     );
+
+    if (hasError) {
+        return Promise.reject(lastError);
+    }
+
     categories = categories
         .filter((category) => !category.errors)
         .map((category) => {
             return { id: category.id, label: category.name };
         });
-    const responseStatus = 200;
-    return { categories, responseStatus };
+
+    return { categories, status: 200 };
 };
 
 /**
@@ -146,8 +155,8 @@ const getCategoryList = (categories) => {
  */
 const filterCategories = (keyword, categories) => {
     const query = keyword.toLowerCase();
-    return categories.filter(category => category.label?.toLowerCase().includes(query));
-}
+    return categories.filter((category) => category.label?.toLowerCase().includes(query));
+};
 
 /**
  * This method fetches all categories and returns them as a flat list structure.
@@ -159,7 +168,7 @@ const filterCategories = (keyword, categories) => {
  * @param {number} [page=1] Number of the page to retrieve.
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
-const categoriesGet = async (parentId, keyword, lang , page = 1) => {
+const categoriesGet = async (parentId, keyword, lang, page = 1) => {
     let { data } = await fetchCategories(lang, parentId, false);
 
     if (keyword) {

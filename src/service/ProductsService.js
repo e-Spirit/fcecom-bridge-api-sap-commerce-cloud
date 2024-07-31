@@ -1,3 +1,4 @@
+const { ShopError } = require('fcecom-bridge-commons');
 const httpClient = require('../utils/http-client');
 const logger = require('../utils/logger');
 
@@ -12,6 +13,8 @@ const { MEDIA_CDN_URL } = process.env;
  * @return The fetched products.
  */
 const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) => {
+    let hasError = false;
+    let errorMessage;
     const fields = 'code,name,url,images(format,url)';
     let { products = [], total = 0, hasNext = false, responseStatus = 200 } = {};
 
@@ -24,6 +27,8 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
                     const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
                     return data;
                 } catch (error) {
+                    hasError = true;
+                    errorMessage = error.data;
                     return { errors: true };
                 }
             })
@@ -41,6 +46,10 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         responseStatus = status;
         total = data.pagination?.totalResults || 0;
         hasNext = page < data.pagination?.totalPages || false;
+    }
+
+    if (hasError) {
+        return Promise.reject(new ShopError(errorMessage));
     }
 
     products = products.map(({ code: id, name: label, images = [], url }) => {

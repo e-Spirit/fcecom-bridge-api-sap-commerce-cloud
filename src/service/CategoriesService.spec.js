@@ -5,7 +5,8 @@ const service = require('./CategoriesService');
 jest.mock('../../src/utils/http-client');
 
 describe('CategoriesService', () => {
-    const testLang = 'EN';
+    const testLang = 'DE';
+    const defaultLang = process.env.DEFAULT_LANG; // Taken from local .env 
     const testCategory = data.categoriesGet.categories[0];
     httpClient.constants.FULL_OCC_PATH = 'path/to/OCC';
 
@@ -16,7 +17,7 @@ describe('CategoriesService', () => {
             const result = await service.getCategoryUrl(testCategory.id, testLang);
 
             expect(result).toEqual({ url: testCategory.url });
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
         });
         it('returns null if the given category is invalid', async () => {
             console.error = jest.fn();
@@ -39,7 +40,7 @@ describe('CategoriesService', () => {
 
             const result = await service.fetchCategories(testLang, undefined, true);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result).toEqual(data.buildCategoryTreeResult);
         });
         it('returns the categories as list', async () => {
@@ -47,7 +48,17 @@ describe('CategoriesService', () => {
 
             const result = await service.fetchCategories(testLang);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(result).toEqual(data.categoriesGetResult);
+        });
+        it('uses fallback language', async () => {
+            const defaultLang = 'en';
+
+            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+
+            const result = await service.fetchCategories();
+
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result).toEqual(data.categoriesGetResult);
         });
     });
@@ -122,7 +133,7 @@ describe('CategoriesService', () => {
 
             const result = await service.categoriesGet();
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result.categories.length).toEqual(expectedCategoryLength);
             for (let i = 0; i < data.categoriesGet.categories.length; i++) {
                 // Check if every category from the test data set is present in the result (ignore ordering)
@@ -137,7 +148,7 @@ describe('CategoriesService', () => {
 
             const result = await service.categoriesGet(data.categoriesGet.categories[0].id);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result.categories.length).toEqual(expectedCategoryLength);
             expect(result.categories[0].id).toEqual('19');
             expect(result.categories[1].id).toEqual('21');
@@ -149,9 +160,9 @@ describe('CategoriesService', () => {
             const expectedCategoryTotal = 8;
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
-            const result = await service.categoriesGet(0, undefined, 'EN', 123);
+            const result = await service.categoriesGet(0, undefined, testLang, 123);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result.categories.length).toEqual(0);
             expect(result.hasNext).toEqual(false);
             expect(result.total).toEqual(expectedCategoryTotal);
@@ -160,9 +171,9 @@ describe('CategoriesService', () => {
             const expectedCategoryTotal = 1;
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
-            const result = await service.categoriesGet(0, 'Bath', 'EN', 1);
+            const result = await service.categoriesGet(0, 'Bath', testLang, 1);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result.categories.length).toEqual(1);
             expect(result.categories[0].label).toEqual("Bath");
             expect(result.hasNext).toEqual(false);
@@ -172,9 +183,9 @@ describe('CategoriesService', () => {
             const expectedCategoryTotal = 2;
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
-            const result = await service.categoriesGet(data.categoriesGet.categories[0].id, 'ov', 'EN', 1);
+            const result = await service.categoriesGet(data.categoriesGet.categories[0].id, 'ov', testLang, 1);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
 
             expect(result.categories.length).toEqual(2);
             expect(result.categories[0].label).toEqual("ovens");
@@ -189,7 +200,7 @@ describe('CategoriesService', () => {
 
             const result = await service.categoryTreeGet();
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result.categorytree[0].id).toEqual('18');
             expect(result.categorytree[0].children[0].id).toEqual('19');
             expect(result.categorytree[0].children[1].id).toEqual('21');
@@ -204,7 +215,7 @@ describe('CategoriesService', () => {
 
             const result = await service.categoryTreeGet(data.categoriesGet.categories[0].id);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result.categorytree[0].id).toEqual('19');
             expect(result.categorytree[1].id).toEqual('21');
             expect(result.categorytree[1].children[0].id).toEqual('212');
@@ -216,7 +227,7 @@ describe('CategoriesService', () => {
 
             const result = await service.categoryTreeGet('21');
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=undefined');
+            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
             expect(result.categorytree[0].id).toEqual('212');
             expect(result.categorytree[0].children[0].id).toEqual('2121');
             expect(result.hasNext).toEqual(false);

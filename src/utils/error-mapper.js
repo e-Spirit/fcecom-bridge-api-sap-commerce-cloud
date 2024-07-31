@@ -1,7 +1,7 @@
 const fieldMap = require('../resources/SAPtoFSCreatePageFieldMapping.json');
 const errorCauseMap = require('../resources/SAPtoFSErrorCauseMapping.json');
 const logger = require('./logger');
-const { BodyValidationError, ErrorCode } = require('fcecom-bridge-commons');
+const { BodyValidationError, ErrorCode, ShopError } = require('fcecom-bridge-commons');
 
 const COULD_NOT_MAP_ERROR = 'Could not map error, please check the shop system logs.';
 const LOGGING_NAME = 'error-mapper';
@@ -14,6 +14,7 @@ const mapErrors = (response) => {
         mapCreationErrors(errors);
     } else {
         logger.logError(LOGGING_NAME, COULD_NOT_MAP_ERROR);
+        throw new ShopError(errors[0]?.message ?? 'Unknown error');
     }
 };
 
@@ -25,9 +26,9 @@ const mapCreationErrors = (errors) => {
         });
 
         /*
-    As SAP Commerce Cloud in some cases shows more than one error for the same issue,
-    we need to filter out errors regarding the same field.
-    */
+        As SAP Commerce Cloud in some cases shows more than one error for the same issue,
+        we need to filter out errors regarding the same field.
+        */
         mappedErrors = Array.from(new Set(mappedErrors.map((err) => err.field))).map((field) =>
             mappedErrors.find((err) => err.field === field)
         );
