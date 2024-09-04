@@ -55,7 +55,7 @@ const fetchContentPageById = async (pageId, lang) => {
 
     logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems/ with parameters ${params}`);
 
-    return await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${params}`);
+    return await httpClient.cmsClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems/${params}`);
 };
 
 /**
@@ -101,7 +101,7 @@ const fetchContentPages = async ({ contentIds, page = 1, q: keyword, lang }) => 
 
         logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems with parameters ${params}`);
 
-        const { data, status } = await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
+        const { data, status } = await httpClient.cmsClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
         pages = data.response?.map((page) => createContentPageResponseBody(page, lang));
         responseStatus = status;
         total = data.pagination?.totalCount;
@@ -141,7 +141,7 @@ const getContentIdByUrl = async (url, lang = 'en') => {
 
     logger.logDebug(LOGGING_NAME, `Performing GET request to /cmsitems with parameters ${params}`);
 
-    const { data } = await httpClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
+    const { data } = await httpClient.cmsClient.get(httpClient.constants.FULL_CMS_PATH + `/cmsitems?${params}`);
     const contentPage = data.response[0];
     return {
         type: 'content',
@@ -193,7 +193,7 @@ const contentPost = async (payload) => {
 
     logger.logDebug(LOGGING_NAME, `Performing POST request to /cmsitems with body ${JSON.stringify(cmsItemBody)}`);
 
-    const { data } = await httpClient.post(httpClient.constants.FULL_CMS_PATH + `/cmsitems`, cmsItemBody);
+    const { data } = await httpClient.cmsClient.post(httpClient.constants.FULL_CMS_PATH + `/cmsitems`, cmsItemBody);
 
     return data.uuid ? { id: data.uuid } : data;
 };
@@ -212,7 +212,7 @@ const contentContentIdPut = async (payload, contentId) => {
         `Performing PUT request to /cmsitems/ with parameters ${contentId} and body ${JSON.stringify(cmsItemBody)}`
     );
 
-    const { data } = await httpClient.put(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId, cmsItemBody);
+    const { data } = await httpClient.cmsClient.put(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId, cmsItemBody);
 
     const responseBody = data.uuid ? { id: data.uuid } : data;
 
@@ -227,7 +227,7 @@ const contentContentIdPut = async (payload, contentId) => {
 const contentContentIdDelete = async (contentId) => {
     logger.logDebug(LOGGING_NAME, `Performing DELETE request to /cmsitems/ with parameters ${contentId}`);
 
-    await httpClient.delete(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId);
+    await httpClient.cmsClient.delete(httpClient.constants.FULL_CMS_PATH + `/cmsitems/` + contentId);
 };
 
 module.exports = {

@@ -1,3 +1,13 @@
+## [2.6.0](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.5.1...v2.6.0) (2024-09-04)
+
+### Changes
+* Fixed security vulnerabilities located in axios (CVE-2024-39338), braces (CVE-2024-4068) and micromatch (CVE-2024-4067) by updating the relevant dependencies.
+* Updated fcecom-bridge-commons to v2.4.0.
+* Added possibility to use different base urls for the categories/products and content pages requests.
+
+### UPDATE NOTICE
+* Instead of `BASE_URL` the environment variables `OCC_BASE_URL` and `CMS_BASE_URL` are expected now. This requires changes in your .env file.
+
 ## [2.5.1](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.5.0...v2.5.1) (2024-07-31)
 
 ### Changes

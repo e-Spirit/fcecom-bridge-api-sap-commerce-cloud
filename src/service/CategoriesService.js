@@ -60,7 +60,7 @@ const buildCache = (categories) =>
 const fetchCategories = async (lang = DEFAULT_LANG, parentId, getTree = false) => {
     logger.logDebug(LOGGING_NAME, `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`);
 
-    let { data: { categories = [] } = {}, status } = await httpClient.get(
+    let { data: { categories = [] } = {}, status } = await httpClient.occClient.get(
         httpClient.constants.FULL_OCC_PATH + `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}?lang=${lang}`
     );
     categories = categories.filter(({ name }) => !!name);
@@ -90,7 +90,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang = DEFAULT_LANG }) => {
             );
 
             try {
-                const { data, status } = await httpClient.get(
+                const { data, status } = await httpClient.occClient.get(
                     httpClient.constants.FULL_OCC_PATH +
                         `/catalogs/${CATALOG_ID}/${CATALOG_VERSION}/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );

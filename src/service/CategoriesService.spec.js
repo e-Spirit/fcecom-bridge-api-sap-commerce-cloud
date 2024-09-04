@@ -6,22 +6,22 @@ jest.mock('../../src/utils/http-client');
 
 describe('CategoriesService', () => {
     const testLang = 'DE';
-    const defaultLang = process.env.DEFAULT_LANG; // Taken from local .env 
+    const defaultLang = process.env.DEFAULT_LANG; // Taken from local .env
     const testCategory = data.categoriesGet.categories[0];
     httpClient.constants.FULL_OCC_PATH = 'path/to/OCC';
 
     describe('getCategoryUrl', () => {
         it('returns the URL of the given category', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.getCategoryUrl(testCategory.id, testLang);
 
             expect(result).toEqual({ url: testCategory.url });
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
         });
         it('returns null if the given category is invalid', async () => {
             console.error = jest.fn();
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.getCategoryUrl('-999', testLang);
 
@@ -36,29 +36,31 @@ describe('CategoriesService', () => {
                 CATALOG_VERSION: 'catalog_version'
             };
 
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.fetchCategories(testLang, undefined, true);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result).toEqual(data.buildCategoryTreeResult);
         });
         it('returns the categories as list', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.fetchCategories(testLang);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result).toEqual(data.categoriesGetResult);
         });
         it('uses fallback language', async () => {
             const defaultLang = 'en';
 
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.fetchCategories();
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result).toEqual(data.categoriesGetResult);
         });
     });
@@ -88,7 +90,9 @@ describe('CategoriesService', () => {
             const testCategory1 = data.categoriesGet.categories[0];
             const testCategory2 = data.categoriesGet.categories[1];
             const testCategoryIds = [testCategory1.id, testCategory2.id];
-            httpClient.get.mockResolvedValueOnce({ data: testCategory1, status: 200 }).mockResolvedValue({ data: testCategory2, status: 200 });
+            httpClient.occClient.get
+                .mockResolvedValueOnce({ data: testCategory1, status: 200 })
+                .mockResolvedValue({ data: testCategory2, status: 200 });
 
             const result = await service.fetchCategoriesByIds({ categoryIds: testCategoryIds, lang: 'EN' });
 
@@ -129,11 +133,13 @@ describe('CategoriesService', () => {
     describe('categoriesGet', () => {
         it('returns the categories as list (no parent ID, no keyword, no pagination)', async () => {
             const expectedCategoryLength = 8; /* number of all categories in response no matter the depth */
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet();
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result.categories.length).toEqual(expectedCategoryLength);
             for (let i = 0; i < data.categoriesGet.categories.length; i++) {
                 // Check if every category from the test data set is present in the result (ignore ordering)
@@ -144,11 +150,13 @@ describe('CategoriesService', () => {
         });
         it('returns the categories as list (with parent ID)', async () => {
             const expectedCategoryLength = 5; /* number of all subcategories of the first category in response */
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(data.categoriesGet.categories[0].id);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result.categories.length).toEqual(expectedCategoryLength);
             expect(result.categories[0].id).toEqual('19');
             expect(result.categories[1].id).toEqual('21');
@@ -158,49 +166,51 @@ describe('CategoriesService', () => {
         });
         it('returns the categories as list (no keyword with pagination)', async () => {
             const expectedCategoryTotal = 8;
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(0, undefined, testLang, 123);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result.categories.length).toEqual(0);
             expect(result.hasNext).toEqual(false);
             expect(result.total).toEqual(expectedCategoryTotal);
         });
         it('returns the categories as list (with keyword and pagination)', async () => {
             const expectedCategoryTotal = 1;
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(0, 'Bath', testLang, 1);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
             expect(result.categories.length).toEqual(1);
-            expect(result.categories[0].label).toEqual("Bath");
+            expect(result.categories[0].label).toEqual('Bath');
             expect(result.hasNext).toEqual(false);
             expect(result.total).toEqual(expectedCategoryTotal);
         });
         it('returns the categories as list (with parentId, keyword and pagination)', async () => {
             const expectedCategoryTotal = 2;
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoriesGet(data.categoriesGet.categories[0].id, 'ov', testLang, 1);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${testLang}`);
 
             expect(result.categories.length).toEqual(2);
-            expect(result.categories[0].label).toEqual("ovens");
-            expect(result.categories[1].label).toEqual("Stoves");
+            expect(result.categories[0].label).toEqual('ovens');
+            expect(result.categories[1].label).toEqual('Stoves');
             expect(result.hasNext).toEqual(false);
             expect(result.total).toEqual(expectedCategoryTotal);
         });
     });
     describe('categoryTreeGet', () => {
         it('returns the categories as tree (no parent ID)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoryTreeGet();
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result.categorytree[0].id).toEqual('18');
             expect(result.categorytree[0].children[0].id).toEqual('19');
             expect(result.categorytree[0].children[1].id).toEqual('21');
@@ -211,11 +221,13 @@ describe('CategoriesService', () => {
             expect(result.total).toEqual(data.categoriesGet.categories.length);
         });
         it('returns the categories as tree (with parent ID)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoryTreeGet(data.categoriesGet.categories[0].id);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result.categorytree[0].id).toEqual('19');
             expect(result.categorytree[1].id).toEqual('21');
             expect(result.categorytree[1].children[0].id).toEqual('212');
@@ -223,11 +235,13 @@ describe('CategoriesService', () => {
             expect(result.total).toEqual(data.categoriesGet.categories.length);
         });
         it('returns the categories as tree (with parent ID from level 2)', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.categoryTreeGet('21');
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(
+                `path/to/OCC/catalogs/catalog_id/catalog_version?lang=${defaultLang}`
+            );
             expect(result.categorytree[0].id).toEqual('212');
             expect(result.categorytree[0].children[0].id).toEqual('2121');
             expect(result.hasNext).toEqual(false);
@@ -239,7 +253,9 @@ describe('CategoriesService', () => {
         it('returns the categories pages with the given IDs', async () => {
             const categoryIds = [data.categoriesGet.categories[0].id, -999];
             const testCategory1 = data.categoriesGet.categories[0];
-            httpClient.get.mockResolvedValueOnce({ data: testCategory1, status: 200 }).mockResolvedValue({ data: { errors: true } });
+            httpClient.occClient.get
+                .mockResolvedValueOnce({ data: testCategory1, status: 200 })
+                .mockResolvedValue({ data: { errors: true } });
 
             const result = await service.categoriesCategoryIdsGet(categoryIds);
 

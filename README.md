@@ -29,17 +29,18 @@ Lean more about their API [here](https://help.sap.com/docs/SAP_COMMERCE/4c33bf18
 ### Configuration
 The configuration is done by copying the `.env.template` file in the root directory to a `.env` file and editing it.
 
-| Param                   | Description                                                                                                        |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------|
-| PORT                    | The port on which the bridge is started.                                                                           |
-| BRIDGE_AUTH_USERNAME    | The username to access the bridge's API.                                                                           |
-| BRIDGE_AUTH_PASSWORD    | The password to access the bridge's API.                                                                           |
-| DEFAULT_LANG            | The default bridge language used to retrieve fallback languages in the PUT/POST bodies.                            |
-| CONN_MODE               | Whether to use HTTP or HTTPS for the bridge's API.                                                                 |
-| SSL_CERT                | The path to the certificate file to use when using HTTPS.                                                          |
-| SSL_KEY                 | The path to the private key file to use when using HTTPS.                                                          |
-| OAUTH_TOKEN_URL         | The URL where the Oauth token can be retrieved from SAP Commerce.                                                  |
-| BASE_URL                | The base URL of the SAP Commerce Server (the URL without any paths).                                               |
+| Param                | Description                                                                             |
+|----------------------|-----------------------------------------------------------------------------------------|
+| PORT                 | The port on which the bridge is started.                                                |
+| BRIDGE_AUTH_USERNAME | The username to access the bridge's API.                                                |
+| BRIDGE_AUTH_PASSWORD | The password to access the bridge's API.                                                |
+| DEFAULT_LANG         | The default bridge language used to retrieve fallback languages in the PUT/POST bodies. |
+| CONN_MODE            | Whether to use HTTP or HTTPS for the bridge's API.                                      |
+| SSL_CERT             | The path to the certificate file to use when using HTTPS.                               |
+| SSL_KEY              | The path to the private key file to use when using HTTPS.                               |
+| OAUTH_TOKEN_URL      | The URL where the Oauth token can be retrieved from SAP Commerce.                       |
+| OCC_BASE_URL            | The base URL of the SAP Commerce Server to retrieve categories and products (the URL without any paths).   
+| CMS_BASE_URL            | The base URL of the SAP Commerce Server to retrieve content pages (the URL without any paths).                                             |
 | MEDIA_CDN_URL           | The URL of the Server where the Media files (Images) reside. (SAP Commerce default: the same as the BASE_URL).     |
 | OCC_PATH                | The path of the OCC V2 api, relative to the BASE_URL (SAP Commerce default: "/occ/v2/").                           |
 | CMS_PATH                | The Path of the CMS webservices API, relative to the BASE_URL (SAP Commerce default: "/cmswebservices/v1/sites/"). |

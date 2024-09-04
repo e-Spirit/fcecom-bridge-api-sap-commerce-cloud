@@ -14,11 +14,11 @@ describe('ProductsService', () => {
                 categoryId: 456,
                 q: 'KEYWORD'
             };
-            httpClient.get.mockResolvedValue({ data: data.fetchProducts, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.fetchProducts, status: 200 });
 
             const result = await service.productsGet(body);
 
-            expect(httpClient.get.mock.calls[0][0]).toContain(`path/to/OCC/products/search`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toContain(`path/to/OCC/products/search`);
             expect(result.products.length).toEqual(data.fetchProducts.products.length);
             result.products.forEach((product, index) => {
                 expect(product.id).toEqual(data.fetchProducts.products[index].code);
@@ -34,7 +34,7 @@ describe('ProductsService', () => {
             const testProduct1 = data.fetchProducts.products[0];
             const testProduct2 = data.fetchProducts.products[1];
             const testProductIds = [testProduct1.code, testProduct2.code];
-            httpClient.get.mockResolvedValueOnce({ data: testProduct1 }).mockResolvedValue({ data: testProduct2 });
+            httpClient.occClient.get.mockResolvedValueOnce({ data: testProduct1 }).mockResolvedValue({ data: testProduct2 });
 
             const result = await service.productsProductIdsGet(testProductIds);
 
@@ -47,11 +47,11 @@ describe('ProductsService', () => {
     describe('getProductUrl', () => {
         it('returns the correct URL', async () => {
             const productId = data.getProductUrl.id;
-            httpClient.get.mockResolvedValue({ data: data.getProductUrl, status: 200 });
+            httpClient.occClient.get.mockResolvedValue({ data: data.getProductUrl, status: 200 });
 
             const result = await service.getProductUrl(productId);
 
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/products/${productId}?fields=url`);
+            expect(httpClient.occClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/products/${productId}?fields=url`);
             expect(result).toEqual({ url: data.getProductUrl.url });
         });
     });

@@ -24,7 +24,7 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
                 const params = `${productId}?${new URLSearchParams({ fields })}`;
                 logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
                 try {
-                    const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
+                    const { data } = await httpClient.occClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
                     return data;
                 } catch (error) {
                     hasError = true;
@@ -41,7 +41,7 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
 
         logger.logDebug(LOGGING_NAME, `Performing GET request to /products/search with parameters ${params}`);
 
-        const { data, status } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/search?${params}`);
+        const { data, status } = await httpClient.occClient.get(httpClient.constants.FULL_OCC_PATH + `/products/search?${params}`);
         products = data.products || [];
         responseStatus = status;
         total = data.pagination?.totalResults || 0;
@@ -74,7 +74,7 @@ const getProductUrl = async (productId) => {
 
     logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
 
-    const { data } = await httpClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
+    const { data } = await httpClient.occClient.get(httpClient.constants.FULL_OCC_PATH + `/products/${params}`);
     return { url: data.url };
 };
 
