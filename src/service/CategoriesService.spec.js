@@ -217,8 +217,7 @@ describe('CategoriesService', () => {
             expect(result.categorytree[0].children[1].children[0].id).toEqual('212');
             expect(result.categorytree[1].id).toEqual('20');
             expect(result.categorytree[2].id).toEqual('23');
-            expect(result.hasNext).toEqual(false);
-            expect(result.total).toEqual(data.categoriesGet.categories.length);
+            expect(result.total).toEqual(8);
         });
         it('returns the categories as tree (with parent ID)', async () => {
             httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
@@ -231,8 +230,7 @@ describe('CategoriesService', () => {
             expect(result.categorytree[0].id).toEqual('19');
             expect(result.categorytree[1].id).toEqual('21');
             expect(result.categorytree[1].children[0].id).toEqual('212');
-            expect(result.hasNext).toEqual(false);
-            expect(result.total).toEqual(data.categoriesGet.categories.length);
+            expect(result.total).toEqual(5);
         });
         it('returns the categories as tree (with parent ID from level 2)', async () => {
             httpClient.occClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
@@ -244,8 +242,7 @@ describe('CategoriesService', () => {
             );
             expect(result.categorytree[0].id).toEqual('212');
             expect(result.categorytree[0].children[0].id).toEqual('2121');
-            expect(result.hasNext).toEqual(false);
-            expect(result.total).toEqual(data.categoriesGet.categories.length);
+            expect(result.total).toEqual(data.categoriesGet.categories.length - 1);
         });
     });
 

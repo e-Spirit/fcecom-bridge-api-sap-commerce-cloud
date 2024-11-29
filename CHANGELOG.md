@@ -1,3 +1,9 @@
+## [2.6.2](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.6.1...v2.6.2) (2024-11-29)
+
+### Changes
+* Updated fcecom-bridge-commons to v2.4.2.
+* Added missing x-total header to /categories/tree and ids endpoints.
+
 ## [2.6.1](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.6.0...v2.6.1) (2024-10-16)
 
 ### Changes
