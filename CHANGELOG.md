@@ -1,3 +1,8 @@
+## [2.6.3](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.6.2...v2.6.3) (2025-08-22)
+
+### Changes
+* Updated fcecom-bridge-commons to v2.4.3.
+
 ## [2.6.2](https://github.com/e-Spirit/fcecom-bridge-api-sap-commerce-cloud/compare/v2.6.1...v2.6.2) (2024-11-29)
 
 ### Changes
